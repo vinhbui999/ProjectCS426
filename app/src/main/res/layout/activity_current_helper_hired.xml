@@ -6,16 +6,41 @@
     android:layout_height="match_parent"
     tools:context=".CurrentHelperHired"
     android:orientation="horizontal">
-    
-  <ImageView
-      android:layout_width="@android:dimen/thumbnail_width"
-      android:layout_height="@android:dimen/thumbnail_height"
+
+    <ImageView
+      android:layout_width="100dp"
+      android:layout_height="100dp"
       android:id="@+id/Cavt"
       android:background="@color/white"/>
-    
+
+  <LinearLayout
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+    android:orientation="vertical">
+
     <TextView
-        android:layout_width=""
-        android:layout_height=""
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Full Name"
+        android:textSize="30dp"
+        android:id="@+id/CName"
+        android:padding="3dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Cphone"
+      android:hint="Phone Number"
+      android:textSize="20dp"/>
+
+  </LinearLayout>
+  <Button
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:background="@color/white"
+    android:id="@+id/vote"
+    android:text="Finish"/>
+
     
 
 </LinearLayout>

@@ -20,7 +20,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".CurrentHelperHired"></activity>
+
+        <activity android:name=".CurrentHelperHired"
+            android:parentActivityName=".Maps"></activity>
         <activity
             android:name=".CustomerHire"
             android:parentActivityName=".Maps" />

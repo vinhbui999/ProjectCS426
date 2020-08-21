@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -23,7 +24,6 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
     ActionBar actionBar;
     Intent intentHelper = null;
     HelperInfor helperInfor = new HelperInfor();
-    String fullNameHelper;
     Button send;
 
     @Override
@@ -37,22 +37,28 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
         helperInfor = arg2.getParcelable("modifyHelper");
 
         send = findViewById(R.id.btn_sendRe);
+        initEditTexts();
+
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(address.getText() != null && description.getText() !=null & day.getText()!=null
-                        && time.getText()!= null && purchase.getText()!=null ){
+                if(address.getText().toString() == null| description.getText().toString() == null | day.getText().toString() == null
+                        | time.getText().toString() == null | purchase.getText().toString() == null ){
 
                     helperInfor.available = false;
                     changeInFile(helperInfor);
-                    Snackbar.make(view, "Send request to helper", Snackbar.LENGTH_LONG)
+                    Snackbar.make(view, "Send request to helper with current user is " + FirebaseAuth.getInstance().getCurrentUser().getUid(), Snackbar.LENGTH_LONG)
                             .setAction("DISMISS", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                 }
                             }).show();
 
-                    //send to current helper was hired
+                    //send to current helper was hired. but have to fix for not showing then
+                    writeToUsersFile();
+                    Intent intentToCurrent = new Intent(CustomerHire.this, CurrentHelperHired.class);
+                    startActivity(intentToCurrent);
+
                 }
                 else {
                     Snackbar.make(view, "Please fill all the information", Snackbar.LENGTH_LONG)
@@ -65,7 +71,33 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                 }
         });
         modifyActionBar();
-        initEditTexts();
+    }
+
+    private void writeToUsersFile() {
+        if(helperInfor != null){
+        String file_name = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        try {
+            FileOutputStream fos = openFileOutput(file_name+".txt", 0);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            BufferedWriter bw = new BufferedWriter(osw);
+            bw.write("Bùi Xuân Vĩnh" + '\n');
+            bw.write("0989778966"+'\n');
+            bw.write("Male" +'\n');
+            bw.write("14/09/2000" +'\n');
+            bw.write("231/83/8A Dương Bá Trạc, Phường 1, Quận 8" + '\n');
+            bw.write("Work early in the noon" +'\n');
+            bw.write("2"+'\n');
+            bw.write(String.valueOf(Integer.valueOf(helperInfor.avatar)) +'\n');
+            bw.write("true" +'\n');
+
+            bw.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        }
     }
 
     private void modifyActionBar() {
@@ -78,6 +110,12 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
         day=findViewById(R.id.requDay);
         time = findViewById(R.id.requTime);
         purchase = findViewById(R.id.purchase);
+
+        address.setText(null);
+        description.setText(null);
+        day.setText(null);
+        time.setText(null);
+        purchase.setText(null);
     }
 
     @Override

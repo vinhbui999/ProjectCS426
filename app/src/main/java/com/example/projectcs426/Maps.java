@@ -140,7 +140,6 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
     }
 
     private void displayMarkers() {
-        //Marker marker;
         for(int i=0; i<_helpers.size();++i){
 
             _markers.add(mMap.addMarker(new MarkerOptions()
