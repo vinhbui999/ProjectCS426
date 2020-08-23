@@ -42,8 +42,8 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(address.getText().toString() != null| description.getText().toString() != null | day.getText().toString() != null
-                        | time.getText().toString() != null | purchase.getText().toString() != null ){
+                if(address.getText().toString() ==null| description.getText().toString() == null | day.getText().toString() == null
+                        | time.getText().toString() == null | purchase.getText().toString() == null ){
 
                     helperInfor.available = false;
                     changeInFile(helperInfor);
@@ -57,6 +57,7 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
 
                     //send to current helper was hired. but have to fix for not showing then
                     writeToUsersFile();
+
                     Intent intentToCurrent = new Intent(CustomerHire.this, CurrentHelperHired.class);
                     startActivity(intentToCurrent);
 
@@ -81,15 +82,15 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
             FileOutputStream fos = openFileOutput(file_name+".txt", 0);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             BufferedWriter bw = new BufferedWriter(osw);
-            bw.write("Bùi Xuân Vĩnh" + '\n');
-            bw.write("0989778966"+'\n');
-            bw.write("Male" +'\n');
-            bw.write("14/09/2000" +'\n');
-            bw.write("231/83/8A Dương Bá Trạc, Phường 1, Quận 8" + '\n');
-            bw.write("Work early in the noon" +'\n');
-            bw.write("2"+'\n');
+            bw.write(helperInfor.HName + '\n');
+            bw.write(helperInfor.phone+'\n');
+            bw.write(helperInfor.getGender() +'\n');
+            bw.write(helperInfor.getDOB() +'\n');
+            bw.write(helperInfor.getAddress() + '\n');
+            bw.write(helperInfor.getNotes() +'\n');
+            bw.write(String.valueOf(helperInfor.Rating)+'\n');
             bw.write(String.valueOf(Integer.valueOf(helperInfor.avatar)) +'\n');
-            bw.write("true" +'\n');
+            bw.write(String.valueOf(helperInfor.available) +'\n');
 
             bw.close();
             fos.close();

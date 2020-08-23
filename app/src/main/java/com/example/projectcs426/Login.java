@@ -30,6 +30,7 @@ public class Login extends AppCompatActivity {
     TextView mCreateBtn;
     FirebaseAuth fAuth;
     ProgressBar progressBar;
+    boolean check = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,10 +43,12 @@ public class Login extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
-        writeToFile();
-        writeToFile1();
-        writeToFile2();
-
+        if(check) {
+            writeToFile();
+            writeToFile1();
+            writeToFile2();
+            check = false;
+        }
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +151,7 @@ public class Login extends AppCompatActivity {
             bw.write("0938895327"+'\n');
             bw.write("Male" +'\n');
             bw.write("14/03/2000" +'\n');
-            bw.write("510 Minh Phụng, Phường 9, Quận 11" + '\n');
+            bw.write("244 Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh" + '\n');
             bw.write("Work early in the mar" +'\n');
             bw.write("4"+'\n');
             bw.write(String.valueOf(Integer.valueOf(R.drawable.le_duan)) +'\n');

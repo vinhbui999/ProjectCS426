@@ -15,9 +15,8 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:icon="@drawable/information_hub_icons12"
+        android:label="Find My Helper"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -41,7 +40,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
+       <activity
             android:name=".Maps"
             android:label="@string/title_activity_maps" />
         <activity

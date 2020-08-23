@@ -111,7 +111,8 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                 mhelper.setHName(text);
             }
             while ((text = bufferedReader.readLine()) != null) {
-                sb.append(text).append('\n');if (k == 7) {
+                sb.append(text).append('\n');
+                if (k == 7) {
                     mhelper.setPhone(text);
                     k--;
                 } else if (k == 6) {
@@ -161,7 +162,6 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
             avt.setImageDrawable(getResources().getDrawable(mhelper.avatar));
             name.setText(mhelper.HName);
             phone.setText(mhelper.phone);
-
         }
     }
 
