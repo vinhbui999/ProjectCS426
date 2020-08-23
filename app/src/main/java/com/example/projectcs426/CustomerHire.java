@@ -42,8 +42,8 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(address.getText().toString() ==null| description.getText().toString() == null | day.getText().toString() == null
-                        | time.getText().toString() == null | purchase.getText().toString() == null ){
+                if(!address.getText().toString().matches("")| !description.getText().toString().matches("")| !day.getText().toString().matches("")
+                        | !time.getText().toString().matches("") | !purchase.getText().toString().matches("") ){
 
                     helperInfor.available = false;
                     changeInFile(helperInfor);
