@@ -42,11 +42,12 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(address.getText().toString() == null| description.getText().toString() == null | day.getText().toString() == null
-                        | time.getText().toString() == null | purchase.getText().toString() == null ){
+                if(address.getText().toString() != null| description.getText().toString() != null | day.getText().toString() != null
+                        | time.getText().toString() != null | purchase.getText().toString() != null ){
 
                     helperInfor.available = false;
                     changeInFile(helperInfor);
+
                     Snackbar.make(view, "Send request to helper with current user is " + FirebaseAuth.getInstance().getCurrentUser().getUid(), Snackbar.LENGTH_LONG)
                             .setAction("DISMISS", new View.OnClickListener() {
                                 @Override

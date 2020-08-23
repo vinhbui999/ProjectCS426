@@ -31,7 +31,7 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
     Button vote;
     ImageView avt;
     TextView name, phone;
-    HelperInfor mhelper = new HelperInfor();
+    HelperInfor mhelper = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,13 +105,13 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
             BufferedReader bufferedReader = new BufferedReader(reader);
             String text = null;
             StringBuilder sb = new StringBuilder();
-            int k = 8;
+            int k = 7;
+            if((text = bufferedReader.readLine()) != null){
+                mhelper = new HelperInfor();
+                mhelper.setHName(text);
+            }
             while ((text = bufferedReader.readLine()) != null) {
-                sb.append(text).append('\n');
-                if (k == 8) {
-                    mhelper.setHName(text);
-                    k--;
-                } else if (k == 7) {
+                sb.append(text).append('\n');if (k == 7) {
                     mhelper.setPhone(text);
                     k--;
                 } else if (k == 6) {

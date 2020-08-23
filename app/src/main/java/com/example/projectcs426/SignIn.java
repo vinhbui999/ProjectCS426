@@ -42,7 +42,7 @@ public class SignIn extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
 
         if(fAuth.getCurrentUser() != null){
-            startActivity(new Intent(SignIn.this,MainActivity.class));
+            startActivity(new Intent(SignIn.this, MainActivity.class));
             finish();
         }
         mRegisterBtn.setOnClickListener(new View.OnClickListener() {
@@ -81,7 +81,7 @@ public class SignIn extends AppCompatActivity {
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SignIn.this,Login.class));
+                startActivity(new Intent(SignIn.this, Login.class));
             }
         });
     }

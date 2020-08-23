@@ -1,5 +1,8 @@
 package com.example.projectcs426;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
@@ -7,6 +10,9 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +22,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -26,11 +33,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Maps extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class Maps extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private ArrayList<HelperInfor> _helpers = new ArrayList<>();
     private ArrayList<Marker> _markers = new ArrayList<>();
+    ActionBar actionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +52,40 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
         getInforHelper();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.logOut:
+                FirebaseAuth.getInstance().signOut();
+                Intent i = new Intent (this, Login.class);
+                this.startActivity(i);
+                return true;
+            case R.id.history:
+                startActivity(new Intent(this, CurrentHelperHired.class));
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void getInforHelper() {
         HelperInfor hlpr1 = new HelperInfor();
+        HelperInfor hlpr2 = new HelperInfor();
+        HelperInfor hlpr3 = new HelperInfor();
 
         readFromfileHelper(R.drawable.xuan_vinh, hlpr1);
+        readFromfileHelper(R.drawable.ngoc_son, hlpr2);
+        readFromfileHelper(R.drawable.le_duan, hlpr3);
 
         _helpers.add(hlpr1);
+        _helpers.add(hlpr2);
+        _helpers.add(hlpr3);
 
 
     }
@@ -111,10 +147,18 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
     }
 
     private void convertAddtoLatlng(HelperInfor helper) throws IOException {
-        Geocoder gc = new Geocoder(Maps.this);
-        List<Address> list = gc.getFromLocationName(helper.getAddress(), 1);
-        Address a = list.get(0);
-        helper.setLatLng(new LatLng(a.getLatitude(), a.getLongitude()));
+        Geocoder gc = new Geocoder(this);
+
+            List<Address> geoResults = gc.getFromLocationName(helper.getAddress(), 1);
+            while (geoResults.size()==0) {
+                geoResults = gc.getFromLocationName(helper.Address, 1);
+            }
+            if (geoResults.size()>0) {
+                Address a = geoResults.get(0);
+                helper.setLatLng(new LatLng(a.getLatitude(), a.getLongitude()));
+            }
+        //List<Address> list = gc.getFromLocationName(helper.Address, 1);
+        //Address a = list.get(0);
     }
 
 
@@ -122,10 +166,6 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        //LatLng sydney = new LatLng(-34, 151);
-        //mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
         for(int i=0; i< _helpers.size(); ++i){
             try {
                 convertAddtoLatlng(_helpers.get(i));
@@ -147,6 +187,8 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
                     .title(_helpers.get(i).getHName()))) ;
 
             _markers.get(i).setTag(i);
+
+            /*
             mMap.animateCamera(CameraUpdateFactory.zoomTo(15), 2000, null);
             CameraPosition cameraPosition = new CameraPosition.Builder()
                     .target(_helpers.get(i).getLatLng())     // Sets the center of the map to Mountain View
@@ -154,8 +196,10 @@ public class Maps extends FragmentActivity implements OnMapReadyCallback, Google
                     .bearing(90)                        // Sets the orientation of the camera to east
                     .tilt(30)                           // Sets the tilt of the camera to 30 degrees
                     .build();
-            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));*/
         }
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(10.762622, 106.660172),10));
     }
     Intent intentOut;
 

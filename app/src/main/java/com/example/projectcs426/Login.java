@@ -42,7 +42,10 @@ public class Login extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
-        //writeToFile();
+        writeToFile();
+        writeToFile1();
+        writeToFile2();
+
 
         mLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,6 +102,56 @@ public class Login extends AppCompatActivity {
             bw.write("Work early in the noon" +'\n');
             bw.write("2"+'\n');
             bw.write(String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)) +'\n');
+            bw.write("true" +'\n');
+
+            bw.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeToFile1() {
+        String file_name = String.valueOf(R.drawable.ngoc_son);
+        try {
+            FileOutputStream fos = openFileOutput(file_name+".txt", 0);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            BufferedWriter bw = new BufferedWriter(osw);
+            bw.write("Cao Ngọc Sơn" + '\n');
+            bw.write("0938895657"+'\n');
+            bw.write("Male" +'\n');
+            bw.write("19/07/2000" +'\n');
+            bw.write("528/1A Minh Phụng, Phường 9, Quận 11" + '\n');
+            bw.write("Work early in the sun" +'\n');
+            bw.write("3"+'\n');
+            bw.write(String.valueOf(Integer.valueOf(R.drawable.ngoc_son)) +'\n');
+            bw.write("true" +'\n');
+
+            bw.close();
+            fos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void writeToFile2() {
+        String file_name = String.valueOf(R.drawable.le_duan);
+        try {
+            FileOutputStream fos = openFileOutput(file_name+".txt", 0);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+            BufferedWriter bw = new BufferedWriter(osw);
+            bw.write("Đỗ Lê Duẫn" + '\n');
+            bw.write("0938895327"+'\n');
+            bw.write("Male" +'\n');
+            bw.write("14/03/2000" +'\n');
+            bw.write("510 Minh Phụng, Phường 9, Quận 11" + '\n');
+            bw.write("Work early in the mar" +'\n');
+            bw.write("4"+'\n');
+            bw.write(String.valueOf(Integer.valueOf(R.drawable.le_duan)) +'\n');
             bw.write("true" +'\n');
 
             bw.close();
