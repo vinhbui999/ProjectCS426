@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.Rating;
 import android.os.Bundle;
 import android.view.View;
@@ -32,15 +33,18 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
     ImageView avt;
     TextView name, phone;
     HelperInfor mhelper = null;
+    DataBaseHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_current_helper_hired);
 
+        db = new DataBaseHelper(this);
 
         getCurrentHelper();
         initComponents();
 
+        if(mhelper!=null){
         vote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -66,6 +70,7 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                         float result = (score + mhelper.Rating) /2;
                         mhelper.setRating(result);
                         mhelper.setAvailable(true);
+
                         clearToUsersFile();
                         writeToHelperFile();
                     }
@@ -92,10 +97,24 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                 builder.create();
                 builder.show();
             }
-        });
+        });}
     }
 
     private void getCurrentHelper() {
+        Cursor res = db.getAllData();
+        while (res.moveToNext()){
+            mhelper.setID(res.getInt(0));
+            mhelper.setHName(res.getString(1));
+            mhelper.setPhone(res.getString(2));
+            mhelper.setGender(res.getString(3));
+            mhelper.setDOB(res.getString(4));
+            mhelper.setAddress(res.getString(5));
+            mhelper.setNotes(res.getString(6));
+            mhelper.setRating(res.getFloat(7));
+            mhelper.setAvatar(res.getInt(8));
+            mhelper.setAvailable(Boolean.valueOf(res.getString(9)));
+        }
+        /*
         FileInputStream fis = null;
         String file_name = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -149,7 +168,7 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                     e.printStackTrace();
                 }
             }
-        }
+        }*/
     }
 
     private void initComponents() {

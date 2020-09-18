@@ -25,13 +25,14 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
     Intent intentHelper = null;
     HelperInfor helperInfor = new HelperInfor();
     Button send;
-
+    DataBaseHelper db;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_customer_hire);
 
         actionBar = getSupportActionBar();
+        db = new DataBaseHelper(this);
         intentHelper=getIntent();
         Bundle arg2 = intentHelper.getBundleExtra("bundle_modify");
         helperInfor = arg2.getParcelable("modifyHelper");
@@ -46,7 +47,7 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                         | !time.getText().toString().matches("") | !purchase.getText().toString().matches("") ){
 
                     helperInfor.available = false;
-                    changeInFile(helperInfor);
+                    changeInFile(helperInfor);//here
 
                     Snackbar.make(view, "Send request to helper with current user is " + FirebaseAuth.getInstance().getCurrentUser().getUid(), Snackbar.LENGTH_LONG)
                             .setAction("DISMISS", new View.OnClickListener() {
@@ -55,8 +56,8 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                                 }
                             }).show();
 
-                    //send to current helper was hired. but have to fix for not showing then
-                    writeToUsersFile();
+                    //send to current helper was hired.
+                    writeToUsersFile();//here
 
                     Intent intentToCurrent = new Intent(CustomerHire.this, CurrentHelperHired.class);
                     startActivity(intentToCurrent);
@@ -134,7 +135,8 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
 
 
     private void changeInFile(HelperInfor helperInfor) {
-        String file_name = String.valueOf(helperInfor.avatar);
+        //db.updateHelperInfor(helperInfor.getID());
+        /*String file_name = String.valueOf(helperInfor.avatar);
         try {
             FileOutputStream fos = openFileOutput(file_name +".txt", 0);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
@@ -155,7 +157,7 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override

@@ -17,6 +17,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
@@ -31,6 +36,10 @@ public class Login extends AppCompatActivity {
     FirebaseAuth fAuth;
     ProgressBar progressBar;
     boolean check = true;
+    HelperInfor helperInfor;
+
+    DatabaseReference databaseReference;
+    long maxid = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,10 +52,50 @@ public class Login extends AppCompatActivity {
         fAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
+        databaseReference=FirebaseDatabase.getInstance().getReference().child("HelperInfor");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    maxid= dataSnapshot.getChildrenCount();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
         if(check) {
-            writeToFile();
-            writeToFile1();
-            writeToFile2();
+
+            helperInfor = new HelperInfor();
+            helperInfor.setHName("Bùi Xuân Vĩnh");
+            helperInfor.setPhone("0397295836");
+            helperInfor.setGender("Male");
+            helperInfor.setDOB("14/09/2000");
+            helperInfor.setAddress("231 Dương Bá Trạc, Phường 1, Quận 8");
+            helperInfor.setNotes("Work early in the noon");
+            helperInfor.setRating((float)2);
+            helperInfor.setAvatar(Integer.valueOf(R.drawable.xuan_vinh));
+            helperInfor.setAvailable(true);
+            helperInfor.setID((int)maxid+1);
+
+            databaseReference.child(String.valueOf(maxid+1)).setValue(helperInfor);
+
+
+            //databaseReference.push().setValue(helperInfor);
+
+            //db.insertHelper("Bùi Xuân Vĩnh","0989778966","Male","14/09/2000","231/83/8A Dương Bá Trạc, Phường 1, Quận 8","Work early in the noon",
+                 //   (float)2, String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)), "true");
+            //db.insertHelper("Cao Ngọc Sơn","0938895657","Male","19/07/2000","528/1A Minh Phụng, Phường 9, Quận 11","Work after 6pm",
+            //(float)3, String.valueOf(Integer.valueOf(R.drawable.ngoc_son)), "true");
+            //db.insertHelper("Đỗ Lê Duẫn","0938895327","Male","14/03/2000","244 Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh",
+           //"Work early in the mar",(float)4,String.valueOf(Integer.valueOf(R.drawable.le_duan)), "true");
+            //writeToFile();
+            //writeToFile1();
+            //writeToFile2();
+
             check = false;
         }
 
@@ -97,14 +146,13 @@ public class Login extends AppCompatActivity {
             OutputStreamWriter osw = new OutputStreamWriter(fos);
             BufferedWriter bw = new BufferedWriter(osw);
             bw.write("Bùi Xuân Vĩnh" + '\n');
-            bw.write("0989778966"+'\n');
+            bw.write("0989778966"+'\n');//primary
             bw.write("Male" +'\n');
             bw.write("14/09/2000" +'\n');
             bw.write("231/83/8A Dương Bá Trạc, Phường 1, Quận 8" + '\n');
-            //bw.write("220 Đường Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh" +'\n');
             bw.write("Work early in the noon" +'\n');
             bw.write("2"+'\n');
-            bw.write(String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)) +'\n');
+            bw.write(String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)) +'\n');//primary
             bw.write("true" +'\n');
 
             bw.close();

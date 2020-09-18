@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 public class HelperInfor implements Parcelable {
 
+
+    int ID =0 ;
     String HName;
     String Gender;
     String DOB;
@@ -29,6 +31,13 @@ public class HelperInfor implements Parcelable {
         this.Rating = (float) 0;
     }
 
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
 
     public String getHName() {
         return HName;

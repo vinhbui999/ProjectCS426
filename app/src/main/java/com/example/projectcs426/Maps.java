@@ -6,10 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,6 +25,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -32,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -39,6 +47,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
     private ArrayList<HelperInfor> _helpers = new ArrayList<>();
     private ArrayList<Marker> _markers = new ArrayList<>();
     ActionBar actionBar;
+    DatabaseReference databaseReference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +57,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         getInforHelper();
     }
@@ -75,18 +86,37 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
     }
 
     private void getInforHelper() {
-        HelperInfor hlpr1 = new HelperInfor();
-        HelperInfor hlpr2 = new HelperInfor();
-        HelperInfor hlpr3 = new HelperInfor();
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("HelperInfor");
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                HelperInfor helperInfor;
+                for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
+                    for(DataSnapshot snapshot:dataSnapshot1.getChildren()){
+                        helperInfor=new HelperInfor();
+                        helperInfor.setHName(snapshot.child("HName").getValue().toString());
+                        helperInfor.setPhone(snapshot.child("Phone").getValue().toString());
+                        helperInfor.setGender(snapshot.child("Gender").getValue().toString());
+                        helperInfor.setDOB(snapshot.child("DOB").getValue().toString());
+                        helperInfor.setAddress(snapshot.child("Address").getValue().toString());
+                        helperInfor.setNotes(snapshot.child("Notes").getValue().toString());
+                        helperInfor.setRating(Float.parseFloat(snapshot.child("Rating").getValue().toString()));
+                        helperInfor.setAvatar(Integer.valueOf(snapshot.child("Avatar").getValue().toString()));
+                        helperInfor.setID(Integer.valueOf(snapshot.getValue().toString()));
 
-        readFromfileHelper(R.drawable.xuan_vinh, hlpr1);
-        readFromfileHelper(R.drawable.ngoc_son, hlpr2);
-        readFromfileHelper(R.drawable.le_duan, hlpr3);
+                        _helpers.add(helperInfor);
+                    }
+                }
 
-        _helpers.add(hlpr1);
-        _helpers.add(hlpr2);
-        _helpers.add(hlpr3);
+            }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
 
