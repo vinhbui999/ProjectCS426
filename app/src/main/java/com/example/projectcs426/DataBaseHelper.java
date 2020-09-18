@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.widget.Toast;
 
 public class DataBaseHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "MyDBName.db";
@@ -28,6 +29,12 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS HelperInfor" +
                 "(ID integer primary key autoincrement, FullName text, Phone text, Gender text, DOB text, Address text, Note text, Rating float, Avatar text, Available text)");
+
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS HireHelper" +
+                "(UserID text primary key, FullName text, Phone text, Avatar text)");
+
+        sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS FavHelper" +
+                "(UserID text primary key, HelperPhone text)");
 
         //create table user hire helper
         // create table user's favorite helper
@@ -56,25 +63,85 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public Cursor getAllData(){
+    public boolean insertHireHelper(String userID, HelperInfor helperInfor){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("UserID", userID);
+        contentValues.put("FullName", helperInfor.getHName());
+        contentValues.put("Phone", helperInfor.getPhone());
+        contentValues.put("Avatar", helperInfor.getAvatar());
+        db.insert("HireHelper", null, contentValues);
+        return true;
+    }
+
+    public Cursor getAllDataInHelperInfor(){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("SELECT * FROM HelperInfor", null);
         return res;
     }
 
-    public boolean updateHelperInfor(int id){ // hired
+    public boolean updateHelperInfor(String phone){ // hired
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Available", "false");
-        db.update("HelperInfor", contentValues, "ID="+id, null);
-        return true;
+        int i =0;
+        i = db.update("HelperInfor" , contentValues, "Phone=?", new String[]{phone});
+        if(i>0)
+            return true;
+        return false;
     }
 
-    public boolean updateHelperInforFree(int id){ // free
+    public boolean updateHelperInforFree(String phone, Float result){ // free
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("Available", "true");
-        db.update("HelperInfor", contentValues, "ID="+id, null);
+        contentValues.put("Rating", result);
+        int i =0;
+        i = db.update("HelperInfor" , contentValues, "Phone=?", new String[]{phone});
+        if(i>0)
+            return true;
+        return false;
+    }
+
+    public Cursor getAllDataHireHelper(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM HireHelper", null);
+        return res;
+    }
+    public boolean removeFromHireHelper(HelperInfor helperInfor, String userID){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM HireHelper WHERE UserID= " +"'"+ userID.toString()+"'" +" AND Phone= " + "'"+helperInfor.getPhone()+"'");
+        //return db.delete("HireHelper", "UserID"+"="+userID + " AND Phone"+"="+helperInfor.getPhone(), null) >0;
+        return true;
+    }
+
+    public Cursor getAllDataFavhelp(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM FavHelper", null);
+        return res;
+    }
+
+    public boolean addFavHelper(String userID, String Phone){
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("UserID", userID);
+        contentValues.put("HelperPhone", Phone);
+        db.insert("FavHelper", null, contentValues);
+        return true;
+    }
+
+    public boolean IsExistInFav(String userID, String helperphone){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res1 = db.rawQuery("SELECT * FROM FavHelper", null);
+        if(res1.getCount() <= 0){
+            return false;
+        }
+        if(res1.moveToFirst()){
+            do{
+                if(res1.getString(0).equals(userID) & res1.getString(1).equals(helperphone)) //if exist
+                    return true;
+            }while(res1.moveToNext());
+        }
         return true;
     }
 

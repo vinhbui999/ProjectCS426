@@ -4,10 +4,12 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,6 +35,7 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
 
         actionBar = getSupportActionBar();
         db = new DataBaseHelper(this);
+
         intentHelper=getIntent();
         Bundle arg2 = intentHelper.getBundleExtra("bundle_modify");
         helperInfor = arg2.getParcelable("modifyHelper");
@@ -47,7 +50,10 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                         | !time.getText().toString().matches("") | !purchase.getText().toString().matches("") ){
 
                     helperInfor.available = false;
-                    changeInFile(helperInfor);//here
+
+                    modifyHelperInfor(helperInfor);
+                    //changeInFile(helperInfor);//here
+                    //check user hired any helper or not. if not annouce he/she not to hire more
 
                     Snackbar.make(view, "Send request to helper with current user is " + FirebaseAuth.getInstance().getCurrentUser().getUid(), Snackbar.LENGTH_LONG)
                             .setAction("DISMISS", new View.OnClickListener() {
@@ -56,8 +62,7 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                                 }
                             }).show();
 
-                    //send to current helper was hired.
-                    writeToUsersFile();//here
+                    modifyHireHelper(helperInfor);
 
                     Intent intentToCurrent = new Intent(CustomerHire.this, CurrentHelperHired.class);
                     startActivity(intentToCurrent);
@@ -74,6 +79,25 @@ public class CustomerHire extends AppCompatActivity implements View.OnClickListe
                 }
         });
         modifyActionBar();
+    }
+
+    //add to hirehelper
+    private void modifyHireHelper(HelperInfor helperInfor) {
+        boolean check = false;
+        check = db.insertHireHelper(FirebaseAuth.getInstance().getCurrentUser().getUid(), helperInfor);
+        if(check)
+            Toast.makeText(this, "Added to hired helper", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "Something wrong when insert hired helper", Toast.LENGTH_SHORT).show();
+    }
+
+    //change in helperinfor
+    private void modifyHelperInfor(HelperInfor helperInfor) {
+        boolean check = false;
+        check = db.updateHelperInfor(helperInfor.getPhone());
+        if(check)
+            Toast.makeText(this, "Update successfully", Toast.LENGTH_SHORT).show();
+        else Toast.makeText(this, "Something wrong with update", Toast.LENGTH_SHORT).show();
     }
 
     private void writeToUsersFile() {

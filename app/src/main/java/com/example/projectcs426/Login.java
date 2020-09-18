@@ -1,8 +1,10 @@
 package com.example.projectcs426;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,6 +30,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 public class Login extends AppCompatActivity {
     EditText mEmail,mPassword;
@@ -37,8 +40,9 @@ public class Login extends AppCompatActivity {
     ProgressBar progressBar;
     boolean check = true;
     HelperInfor helperInfor;
+    DataBaseHelper db;
 
-    DatabaseReference databaseReference;
+    private ArrayList<HelperInfor> _helpers = new ArrayList<>();
     long maxid = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,52 +53,52 @@ public class Login extends AppCompatActivity {
         mLoginBtn = findViewById(R.id.LoginButton);
         mCreateBtn = findViewById(R.id.TextCreateAcc);
 
+        db = new DataBaseHelper(this);
         fAuth = FirebaseAuth.getInstance();
         progressBar = findViewById(R.id.progressBar);
 
-        databaseReference=FirebaseDatabase.getInstance().getReference().child("HelperInfor");
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    maxid= dataSnapshot.getChildrenCount();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+//        databaseReference=FirebaseDatabase.getInstance().getReference().child("HelperInfor");
+//        DatabaseReference helpRef = databaseReference.child("HelperInfor");
+//
+//        ValueEventListener valueEventListener = new ValueEventListener() {
+//
+//            //@Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for(DataSnapshot ds: dataSnapshot.getChildren()){
+//                    HelperInfor helperInfor = new HelperInfor();
+//                    helperInfor.setHName(ds.child("hname").getValue(String.class));
+//                    helperInfor.setPhone(ds.child("phone").getValue(String.class));
+//                    helperInfor.setDOB(ds.child("dob").getValue(String.class));
+//                    helperInfor.setGender(ds.child("gender").getValue(String.class));
+//                    helperInfor.setNotes(ds.child("notes").getValue(String.class));
+//                    helperInfor.setAddress(ds.child("address").getValue(String.class));
+//                    helperInfor.setRating(ds.child("rating").getValue(Float.class));
+//                    helperInfor.setAvatar(ds.child("avatar").getValue(Integer.class));
+//                    helperInfor.setID(ds.child("id").getValue(Integer.class));
+//                    helperInfor.setAvailable(ds.child("available").getValue(Boolean.class));
+//
+//                    Log.d("TAG", helperInfor.getHName());
+//
+//                    _helpers.add(helperInfor);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        };
+//        helpRef.addListenerForSingleValueEvent(valueEventListener);
 
         if(check) {
-
-            helperInfor = new HelperInfor();
-            helperInfor.setHName("Bùi Xuân Vĩnh");
-            helperInfor.setPhone("0397295836");
-            helperInfor.setGender("Male");
-            helperInfor.setDOB("14/09/2000");
-            helperInfor.setAddress("231 Dương Bá Trạc, Phường 1, Quận 8");
-            helperInfor.setNotes("Work early in the noon");
-            helperInfor.setRating((float)2);
-            helperInfor.setAvatar(Integer.valueOf(R.drawable.xuan_vinh));
-            helperInfor.setAvailable(true);
-            helperInfor.setID((int)maxid+1);
-
-            databaseReference.child(String.valueOf(maxid+1)).setValue(helperInfor);
-
-
-            //databaseReference.push().setValue(helperInfor);
-
-            //db.insertHelper("Bùi Xuân Vĩnh","0989778966","Male","14/09/2000","231/83/8A Dương Bá Trạc, Phường 1, Quận 8","Work early in the noon",
-                 //   (float)2, String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)), "true");
-            //db.insertHelper("Cao Ngọc Sơn","0938895657","Male","19/07/2000","528/1A Minh Phụng, Phường 9, Quận 11","Work after 6pm",
-            //(float)3, String.valueOf(Integer.valueOf(R.drawable.ngoc_son)), "true");
-            //db.insertHelper("Đỗ Lê Duẫn","0938895327","Male","14/03/2000","244 Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh",
-           //"Work early in the mar",(float)4,String.valueOf(Integer.valueOf(R.drawable.le_duan)), "true");
-            //writeToFile();
-            //writeToFile1();
-            //writeToFile2();
+/*
+            db.insertHelper("Bùi Xuân Vĩnh","0989778966","Male","14/09/2000","231/83/8A Dương Bá Trạc, Phường 1, Quận 8","Work early in the noon",
+                   (float)2, String.valueOf(Integer.valueOf(R.drawable.xuan_vinh)), "true");
+            db.insertHelper("Cao Ngọc Sơn","0938895657","Male","19/07/2000","528/1A Minh Phụng, Phường 9, Quận 11","Work after 6pm",
+                    (float)3, String.valueOf(Integer.valueOf(R.drawable.ngoc_son)), "true");
+            db.insertHelper("Đỗ Lê Duẫn","0938895327","Male","14/03/2000","244 Bùi Hữu Nghĩa, Phường 2, Quận Bình Thạnh",
+                "Work early in the mar",(float)4,String.valueOf(Integer.valueOf(R.drawable.le_duan)), "true");
+*/
 
             check = false;
         }
@@ -123,6 +127,7 @@ public class Login extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(Login.this,"Log in successfully" + fAuth.getCurrentUser().getUid()
                                     ,Toast.LENGTH_SHORT).show();
+                            //getInforHelper();
                             startActivity(new Intent(Login.this, Maps.class));
                         }else{
                             Toast.makeText(Login.this,"Error !" + task.getException().getMessage(),Toast.LENGTH_SHORT).show();
@@ -138,6 +143,7 @@ public class Login extends AppCompatActivity {
             }
         });
     }
+
 
     private void writeToFile() {
         String file_name = String.valueOf(R.drawable.xuan_vinh);

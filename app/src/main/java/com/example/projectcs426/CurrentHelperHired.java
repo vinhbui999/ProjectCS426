@@ -14,7 +14,9 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.BufferedReader;
@@ -29,7 +31,7 @@ import java.io.OutputStreamWriter;
 public class CurrentHelperHired extends AppCompatActivity implements View.OnClickListener {
 
     Intent intentIn;
-    Button vote;
+    Button vote, addtoFav;
     ImageView avt;
     TextView name, phone;
     HelperInfor mhelper = null;
@@ -41,13 +43,14 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
 
         db = new DataBaseHelper(this);
 
-        getCurrentHelper();
+        getCurrentHiredHelper(); // from HireHelper table
+
         initComponents();
 
-        if(mhelper!=null){
+        //if(mhelper != null){
         vote.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(CurrentHelperHired.this);
                 LinearLayout linearLayout = new LinearLayout(CurrentHelperHired.this);
                 RatingBar ratingBar = new RatingBar(CurrentHelperHired.this);
@@ -68,11 +71,29 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                     public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
                         float score = ratingBar.getRating();
                         float result = (score + mhelper.Rating) /2;
-                        mhelper.setRating(result);
-                        mhelper.setAvailable(true);
+                        if(mhelper!=null) {
+                            //mhelper.setRating(result);
+                            //mhelper.setAvailable(true);
 
-                        clearToUsersFile();
-                        writeToHelperFile();
+                            boolean done = modifyInHelperInfor(mhelper, view, result);
+
+                            if (done) {
+                                boolean check1 = db.removeFromHireHelper(mhelper, FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                if (check1) {
+                                    Snackbar.make(view, "Thanks a lot...", Snackbar.LENGTH_LONG)
+                                            .setAction("DISMISS", new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View v) {
+                                                }
+                                            }).show();
+                                }
+
+                            }
+                            else {
+                                Toast.makeText(CurrentHelperHired.this, "Something went wrong", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
                     }
                 });
 
@@ -97,22 +118,87 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                 builder.create();
                 builder.show();
             }
-        });}
+        });
+
+        addtoFav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                boolean checkAdd, checkExist = false;
+                // check if that helper already exist or not
+                checkExist = db.IsExistInFav(FirebaseAuth.getInstance().getCurrentUser().getUid(), mhelper.getPhone());
+                if(!checkExist){
+                    // if not you can add
+                    checkAdd = db.addFavHelper(FirebaseAuth.getInstance().getCurrentUser().getUid(), mhelper.getPhone());
+                    if (checkAdd) {
+                        Snackbar.make(view, "You choose this as your favorite helper", Snackbar.LENGTH_LONG)
+                                .setAction("DISMISS", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                    }
+                                }).show();
+
+                        //Intent intentToCurrent = new Intent(CurrentHelperHired.this, FavoriteHelper.class);
+                        //startActivity(intentToCurrent);
+                        // move to Favorite class
+                        
+                    } else {
+                        Snackbar.make(view, "Something went wrong", Snackbar.LENGTH_LONG)
+                                .setAction("DISMISS", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                    }
+                                }).show();
+                    }
+                }
+                else {// he already exist
+                    Snackbar.make(view, "This helper had been added to favorite", Snackbar.LENGTH_LONG)
+                            .setAction("DISMISS", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                }
+                            }).show();
+
+                }
+
+            }
+        });
     }
 
-    private void getCurrentHelper() {
-        Cursor res = db.getAllData();
-        while (res.moveToNext()){
-            mhelper.setID(res.getInt(0));
-            mhelper.setHName(res.getString(1));
-            mhelper.setPhone(res.getString(2));
-            mhelper.setGender(res.getString(3));
-            mhelper.setDOB(res.getString(4));
-            mhelper.setAddress(res.getString(5));
-            mhelper.setNotes(res.getString(6));
-            mhelper.setRating(res.getFloat(7));
-            mhelper.setAvatar(res.getInt(8));
-            mhelper.setAvailable(Boolean.valueOf(res.getString(9)));
+    private boolean modifyInHelperInfor(HelperInfor mhelper, View view, Float result) {
+        boolean check =false;
+        check = db.updateHelperInforFree(mhelper.getPhone(), result);
+        if(check){
+            Snackbar.make(view, "Thanks for your support", Snackbar.LENGTH_LONG)
+                    .setAction("DISMISS", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    }).show();
+
+            return true;
+        }
+
+        Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
+        return false;
+
+    }
+
+
+    private void getCurrentHiredHelper() {
+        mhelper = new HelperInfor();
+        Cursor res = db.getAllDataHireHelper();
+        if(res.moveToFirst()){
+            do{
+                mhelper.setHName(res.getString(1));
+                mhelper.setPhone(res.getString(2));
+                mhelper.setAvatar(Integer.valueOf(res.getString(3)));
+            }while(res.moveToNext());
+
+
+        }
+
+        else {
+            Toast.makeText(this, "Something went wrong when you fetch data", Toast.LENGTH_SHORT).show();
         }
         /*
         FileInputStream fis = null;
@@ -176,6 +262,7 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
         avt=findViewById(R.id.Cavt);
         name = findViewById(R.id.CName);
         phone = findViewById(R.id.Cphone);
+        addtoFav = findViewById(R.id.addToFav);
 
         if(mhelper != null){
             avt.setImageDrawable(getResources().getDrawable(mhelper.avatar));

@@ -3,14 +3,19 @@ package com.example.projectcs426;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.solver.widgets.Helper;
 import androidx.fragment.app.FragmentActivity;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
+import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,6 +25,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -40,6 +47,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import android.os.Handler;
+import android.widget.Toast;
+
 
 public class Maps extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -47,7 +57,8 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
     private ArrayList<HelperInfor> _helpers = new ArrayList<>();
     private ArrayList<Marker> _markers = new ArrayList<>();
     ActionBar actionBar;
-    DatabaseReference databaseReference;
+    DataBaseHelper db;
+    boolean doubleClick = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +69,36 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference();
+        db = new DataBaseHelper(this);
+       getInforHelper();
 
-        getInforHelper();
     }
 
+    private void getInforHelper() {
+        Cursor res = db.getAllDataInHelperInfor();
+        if(res.moveToFirst()){
+            do{
+                HelperInfor helperInfor = new HelperInfor();
+                helperInfor.setID(Integer.valueOf(res.getString(0)));
+                helperInfor.setHName(res.getString(1));
+                helperInfor.setPhone(res.getString(2));
+                helperInfor.setGender(res.getString(3));
+                helperInfor.setDOB(res.getString(4));
+                helperInfor.setAddress(res.getString(5));
+                helperInfor.setNotes(res.getString(6));
+                helperInfor.setRating(Float.valueOf(res.getString(7)));
+                helperInfor.setAvatar(Integer.valueOf(res.getString(8)));
+                helperInfor.setAvailable(Boolean.valueOf(res.getString(9)));
+
+                _helpers.add(helperInfor);
+
+            }while(res.moveToNext());
+        }
+        else {
+            Toast.makeText(this, "Something went wrong when you fetch data", Toast.LENGTH_SHORT).show();
+        }
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -85,40 +121,7 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
         return super.onOptionsItemSelected(item);
     }
 
-    private void getInforHelper() {
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("HelperInfor");
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                HelperInfor helperInfor;
-                for(DataSnapshot dataSnapshot1:dataSnapshot.getChildren()){
-                    for(DataSnapshot snapshot:dataSnapshot1.getChildren()){
-                        helperInfor=new HelperInfor();
-                        helperInfor.setHName(snapshot.child("HName").getValue().toString());
-                        helperInfor.setPhone(snapshot.child("Phone").getValue().toString());
-                        helperInfor.setGender(snapshot.child("Gender").getValue().toString());
-                        helperInfor.setDOB(snapshot.child("DOB").getValue().toString());
-                        helperInfor.setAddress(snapshot.child("Address").getValue().toString());
-                        helperInfor.setNotes(snapshot.child("Notes").getValue().toString());
-                        helperInfor.setRating(Float.parseFloat(snapshot.child("Rating").getValue().toString()));
-                        helperInfor.setAvatar(Integer.valueOf(snapshot.child("Avatar").getValue().toString()));
-                        helperInfor.setID(Integer.valueOf(snapshot.getValue().toString()));
 
-                        _helpers.add(helperInfor);
-                    }
-                }
-
-            }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
 
     private void readFromfileHelper(int avt_ID, HelperInfor mhelper) {
         FileInputStream fis = null;
@@ -211,10 +214,13 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
 
     private void displayMarkers() {
         for(int i=0; i<_helpers.size();++i){
-
+            Bitmap bmp = BitmapFactory.decodeResource(getResources(), _helpers.get(i).getAvatar());
+            bmp = Bitmap.createScaledBitmap(bmp, bmp.getWidth()/35, bmp.getHeight()/35, false);
+            BitmapDescriptor bitmapDescriptor = BitmapDescriptorFactory.fromBitmap(bmp);
             _markers.add(mMap.addMarker(new MarkerOptions()
                     .position(_helpers.get(i).latLng)
-                    .title(_helpers.get(i).getHName()))) ;
+                    .title(_helpers.get(i).getHName())
+                    .icon(bitmapDescriptor))) ;
 
             _markers.get(i).setTag(i);
 
@@ -235,20 +241,20 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        HelperInfor tmp = new HelperInfor();
-        int index = Integer.valueOf(String.valueOf(marker.getTag()));
-        tmp = _helpers.get(Integer.valueOf(String.valueOf(marker.getTag())));
+            HelperInfor tmp = new HelperInfor();
+            int index = Integer.valueOf(String.valueOf(marker.getTag()));
+            tmp = _helpers.get(Integer.valueOf(String.valueOf(marker.getTag())));
 
-        intentOut = new Intent( Maps.this, HelperProfile.class);
-        if(tmp!= null){
-            Bundle arg = new Bundle();
+            intentOut = new Intent( Maps.this, HelperProfile.class);
+            if(tmp!= null){
+                Bundle arg = new Bundle();
 
-            arg.putParcelable("helperInf", (Parcelable) tmp);
+                arg.putParcelable("helperInf", (Parcelable) tmp);
 
-            intentOut.putExtra("bundle_arg", arg);
+                intentOut.putExtra("bundle_arg", arg);
 
-            startActivity(intentOut);
-        }
+                startActivity(intentOut);
+            }
         return false;
     }
 }

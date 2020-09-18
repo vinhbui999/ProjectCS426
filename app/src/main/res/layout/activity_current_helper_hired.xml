@@ -16,11 +16,11 @@
   <LinearLayout
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-    android:orientation="vertical">
+      android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:hint="Full Name"
         android:textSize="30dp"
         android:id="@+id/CName"
@@ -28,19 +28,32 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/Cphone"
       android:hint="Phone Number"
-      android:textSize="20dp"/>
+      android:textSize="25dp"/>
 
   </LinearLayout>
-  <Button
+  <LinearLayout
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:background="@color/white"
-      android:id="@+id/vote"
-      android:text="Finish"/>
+      android:orientation="vertical">
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/vote"
+        android:text="Finish"/>
+    
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:id="@+id/addToFav"
+        android:text="Add To Favorite"/>
+
+  </LinearLayout>
     
 
 </LinearLayout>
