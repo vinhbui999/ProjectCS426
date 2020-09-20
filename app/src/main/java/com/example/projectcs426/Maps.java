@@ -117,6 +117,10 @@ public class Maps extends AppCompatActivity implements OnMapReadyCallback, Googl
             case R.id.history:
                 startActivity(new Intent(this, CurrentHelperHired.class));
                 return true;
+            case R.id.fav:
+                startActivity(new Intent(this, FavoriteHelper.class));
+                return true;
+
         }
         return super.onOptionsItemSelected(item);
     }

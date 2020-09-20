@@ -137,8 +137,8 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
                                     }
                                 }).show();
 
-                        //Intent intentToCurrent = new Intent(CurrentHelperHired.this, FavoriteHelper.class);
-                        //startActivity(intentToCurrent);
+                        Intent intentToCurrent = new Intent(CurrentHelperHired.this, FavoriteHelper.class);
+                        startActivity(intentToCurrent);
                         // move to Favorite class
                         
                     } else {
@@ -185,9 +185,10 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
 
 
     private void getCurrentHiredHelper() {
-        mhelper = new HelperInfor();
+
         Cursor res = db.getAllDataHireHelper();
         if(res.moveToFirst()){
+            mhelper = new HelperInfor();
             do{
                 mhelper.setHName(res.getString(1));
                 mhelper.setPhone(res.getString(2));
@@ -198,7 +199,7 @@ public class CurrentHelperHired extends AppCompatActivity implements View.OnClic
         }
 
         else {
-            Toast.makeText(this, "Something went wrong when you fetch data", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Nothing here", Toast.LENGTH_SHORT).show();
         }
         /*
         FileInputStream fis = null;

@@ -34,7 +34,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
                 "(UserID text primary key, FullName text, Phone text, Avatar text)");
 
         sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS FavHelper" +
-                "(UserID text primary key, HelperPhone text)");
+                "(UserID text, HelperPhone text)");
 
         //create table user hire helper
         // create table user's favorite helper
@@ -108,6 +108,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("SELECT * FROM HireHelper", null);
         return res;
     }
+
     public boolean removeFromHireHelper(HelperInfor helperInfor, String userID){
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("DELETE FROM HireHelper WHERE UserID= " +"'"+ userID.toString()+"'" +" AND Phone= " + "'"+helperInfor.getPhone()+"'");
@@ -115,10 +116,32 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public Cursor getAllDataFavhelp(){
+    public Cursor getAllDataFavhelp(String userID){
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("SELECT * FROM FavHelper", null);
+        Cursor res = db.rawQuery("SELECT * FROM FavHelper WHERE UserID=" + "'"+userID+"'", null);
         return res;
+    }
+
+    public Cursor getFavInfor(String Phone){
+        SQLiteDatabase sqLiteDatabase = this.getReadableDatabase();
+        Cursor res = sqLiteDatabase.rawQuery("SELECT * FROM HelperInfor WHERE Phone =" +"'"+ Phone +"'", null);
+        return res;
+    }
+
+    public boolean removeFromFavHelper(HelperInfor helperInfor, String userID){
+        SQLiteDatabase db = this.getWritableDatabase();
+        //db.execSQL("DELETE FROM FavHelper WHERE UserID= " +"'"+ userID+"'" +" AND Phone= " + "'"+helperInfor.getPhone()+"'");
+        if (db.delete("FavHelper", "UserID"+"="+"'"+userID+"'"+ " AND HelperPhone"+"="+"'"+helperInfor.getPhone()+"'", null) >0)
+            return true;
+        return false;
+    }
+
+    public boolean checkUserHired(String userID){
+        SQLiteDatabase db =this.getReadableDatabase();
+        Cursor res = db.rawQuery("SELECT * FROM HireHelper WHERE UserID=" + "'"+userID+"'", null);
+        if(res.getCount() > 0)// tuc la co thue
+            return false;
+        return true;
     }
 
     public boolean addFavHelper(String userID, String Phone){
@@ -133,16 +156,16 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public boolean IsExistInFav(String userID, String helperphone){
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res1 = db.rawQuery("SELECT * FROM FavHelper", null);
-        if(res1.getCount() <= 0){
+        if(res1.getCount() <= 0){ // chua co thich ai
             return false;
         }
         if(res1.moveToFirst()){
             do{
-                if(res1.getString(0).equals(userID) & res1.getString(1).equals(helperphone)) //if exist
+                if(res1.getString(0).equals(userID) && res1.getString(1).equals(helperphone)) //if exist
                     return true;
             }while(res1.moveToNext());
         }
-        return true;
+        return false;
     }
 
 }

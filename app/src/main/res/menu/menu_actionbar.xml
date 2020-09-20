@@ -2,13 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/logOut"
-        android:title="Log Out"
-        app:showAsAction="always"/>
+        android:id="@+id/fav"
+        android:title="Favorite"/>
     <item
         android:id="@+id/history"
-        android:title="History"
-        app:showAsAction="always"/>
+        android:title="History"/>
+    <item
+        android:id="@+id/logOut"
+        android:title="Log Out"/>
+
 
 
 </menu>

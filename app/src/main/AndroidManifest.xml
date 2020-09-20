@@ -28,6 +28,9 @@
         <activity
             android:name=".HelperProfile"
             android:parentActivityName=".Maps" />
+        <activity android:name=".FavoriteHelper"
+            android:parentActivityName=".Maps"/>
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").

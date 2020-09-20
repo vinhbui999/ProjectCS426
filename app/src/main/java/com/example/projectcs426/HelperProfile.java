@@ -11,6 +11,9 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 
 public class HelperProfile extends AppCompatActivity {
@@ -20,11 +23,13 @@ public class HelperProfile extends AppCompatActivity {
     int index = 0;
     Intent intentIn=null;
     Intent intentToHired = null;
+    DataBaseHelper dataBaseHelper;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_helper_profile);
 
+        dataBaseHelper=new DataBaseHelper(this);
         intentIn = getIntent();
         Bundle arg = intentIn.getBundleExtra("bundle_arg");
         helperInfor = (HelperInfor) arg.getParcelable("helperInf");
@@ -42,8 +47,20 @@ public class HelperProfile extends AppCompatActivity {
                     arg2.putParcelable("modifyHelper", helperInfor);
                     intentToHired.putExtra("bundle_modify", arg2);
 
-                    startActivity(intentToHired);
-                    finish();
+                    if(dataBaseHelper.checkUserHired(FirebaseAuth.getInstance().getUid())){
+                        startActivity(intentToHired);
+                        finish();
+                    }
+                    else{
+                        Snackbar.make(view, "You already hire a helper", Snackbar.LENGTH_LONG)
+                                .setAction("DISMISS", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                    }
+                                }).show();
+                    }
+                    //check in here
+
                 }
                 else{
                     Toast.makeText(HelperProfile.this, "You can not book this helper, because they are not available", Toast.LENGTH_SHORT).show();
